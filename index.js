@@ -10,7 +10,7 @@ app.use(express.json())
 //nubis_01
 //O2XxFbkywGrPS1bD
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   "mongodb+srv://nubis_01:O2XxFbkywGrPS1bD@cluster0.vfbjj6s.mongodb.net/?retryWrites=true&w=majority";
 
@@ -32,15 +32,30 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
-    const userCollection = await client.db("productsDB").collection("products")
+    const productCollection = await client.db("productsDB").collection("products")
 
     // Create a new product 
     app.post("/products", async(req, res) => {
         const product = req.body
-        const result = await userCollection.insertOne(product)
+        const result = await productCollection.insertOne(product)
         res.send(result)
     })
 
+    // get product brand name wise
+    app.get('/products-brand/:brandName/', async(req, res) => {
+        const brand = req.params.brandName
+        const result = await productCollection.find({ brandName : brand}).toArray()
+        res.send(result)
+
+    })
+    // get a single product 
+    app.get('/products/:id', async(req,res)=>{
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const result = await productCollection.findOne(query)
+        res.send(result)
+
+    })
 
   } finally {
     // Ensures that the client will close when you finish/error
