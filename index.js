@@ -35,6 +35,8 @@ async function run() {
       .db("productsDB")
       .collection("products");
     const cartCollection = await client.db("productsDB").collection("carts");
+    const brandImageCollection = await client.db("productsDB").collection("brandImage");
+
 
     // Create a new product
     app.post("/products", async (req, res) => {
@@ -119,6 +121,16 @@ async function run() {
          const query = { _id: new ObjectId(id) };
          const result = await cartCollection.deleteOne(query)
          res.send(result)
+
+    })
+    // brand image  get url
+
+    app.get('/brand-images/:name', async(req, res)=>{
+        const name = req.params.name
+        const query = { name : name }
+        const result = await brandImageCollection.findOne(query)
+        res.send(result)
+
 
     })
   } finally {
