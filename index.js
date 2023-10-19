@@ -34,6 +34,7 @@ async function run() {
     const productCollection = await client
       .db("productsDB")
       .collection("products");
+    const cartCollection = await client.db("productsDB").collection("carts");
 
     // Create a new product
     app.post("/products", async (req, res) => {
@@ -87,10 +88,39 @@ async function run() {
           image02: image02,
         },
       };
-      const result = await productCollection.updateOne(filter,updateDoc,options)
-      
-      res.send(result)
+      const result = await productCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+
+      res.send(result);
     });
+    // add to cart 
+    app.post("/cart", async (req, res) => {
+      const cart = req.body;
+
+      const result = await cartCollection.insertOne(cart);
+
+      res.send(result);
+    });
+    // get cart product 
+    app.get('/cart', async(req,res)=>{
+        
+        const result = await cartCollection.find().toArray()
+        
+
+
+        res.send(result)
+    })
+    // delete cart item 
+    app.delete('/cart/:id', async(req,res)=>{
+        const id = req.params.id
+         const query = { _id: new ObjectId(id) };
+         const result = await cartCollection.deleteOne(query)
+         res.send(result)
+
+    })
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
